@@ -1,0 +1,48 @@
+syntax = "proto3";
+package gs.pb;
+
+// —— M2 验收用 ——
+message EchoMsg { string payload = 1; }
+
+// —— 心跳/会话 ——
+message Heartbeat { int64 client_ms = 1; }
+message LoginReq  { string account = 1; }
+message LoginResp { int32 code = 1; uint64 player_id = 2; string session_token = 3; }
+message ReconnectReq { uint64 player_id = 1; string session_token = 2; }
+
+// —— 匹配/房间（M3 使用，本里程碑仅定义）——
+message MatchReq  { uint64 player_id = 1; }
+message EnterRoom { uint64 room_id = 1; repeated uint64 player_ids = 2; }
+
+// —— 对战同步（M3 使用）——
+message PlayerInput {
+  uint32 seq = 1;
+  float move_x = 2;   // [-1,1] 归一化摇杆
+  float move_y = 3;
+  bool attack = 4;
+}
+message PlayerState {
+  uint64 player_id = 1;
+  float x = 2; float y = 3;
+  int32 hp = 4;
+  uint32 last_input_seq = 5;
+}
+message ProjectileState {
+  uint64 projectile_id = 1;
+  uint64 owner_id = 2;
+  float x = 3; float y = 4;
+  float velocity_x = 5; float velocity_y = 6;
+}
+message StateSnapshot {
+  uint32 tick = 1;
+  bool full = 2;                    // 全量（新进/重连）or 增量
+  repeated PlayerState players = 3;
+  repeated ProjectileState projectiles = 4;       // 当前仍存活的权威子弹
+  repeated uint64 removed_projectile_ids = 5;     // 本 tick 命中/越界销毁
+}
+message BattleEnd { uint64 winner_id = 1; }
+
+// —— 排行榜（M4）——
+message LeaderboardReq { uint32 top_n = 1; }
+message LeaderboardEntry { string account = 1; double score = 2; }
+message LeaderboardResp { repeated LeaderboardEntry entries = 1; }

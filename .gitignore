@@ -1,0 +1,47 @@
+# Project-private documentation
+docs/
+
+# Local agent state
+.superpowers/
+
+# CMake / native build outputs
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+
+# Unity generated directories and project files
+client/Library/
+client/Temp/
+client/Obj/
+client/Logs/
+client/UserSettings/
+client/Build/
+client/Builds/
+client/MemoryCaptures/
+client/Recordings/
+client/*.csproj
+client/*.sln
+client/*.slnx
+
+# IDE / OS files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
+Thumbs.db
+
+# Local configuration, credentials, and logs
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+*.jks
+*.log

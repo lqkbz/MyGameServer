@@ -1,0 +1,31 @@
+cmake_minimum_required(VERSION 3.16)
+project(gameserver CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-Wall -Wextra -g)
+
+find_package(Protobuf REQUIRED)
+protobuf_generate_cpp(GS_PB_SRCS GS_PB_HDRS src/proto/game.proto)
+add_library(gs_proto STATIC ${GS_PB_SRCS})
+target_include_directories(gs_proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(gs_proto PUBLIC protobuf::libprotobuf)
+
+file(GLOB GS_NET_SRCS src/net/*.cc src/proto/*.cc src/timer/*.cc
+     src/game/*.cc src/storage/*.cc)
+add_library(gs_net STATIC ${GS_NET_SRCS})
+target_include_directories(gs_net PUBLIC src)
+target_link_libraries(gs_net PUBLIC pthread gs_proto hiredis mysqlclient)
+
+find_package(GTest REQUIRED)
+enable_testing()
+file(GLOB GS_TEST_SRCS tests/*.cc)
+add_executable(gs_tests ${GS_TEST_SRCS})
+target_link_libraries(gs_tests PRIVATE gs_net GTest::gtest GTest::gtest_main)
+add_test(NAME gs_tests COMMAND gs_tests)
+
+file(GLOB GS_EXAMPLES examples/*.cc)
+foreach(ex ${GS_EXAMPLES})
+  get_filename_component(name ${ex} NAME_WE)
+  add_executable(${name} ${ex})
+  target_link_libraries(${name} PRIVATE gs_net)
+endforeach()
